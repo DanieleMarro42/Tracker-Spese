@@ -1,335 +1,1221 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spese Tirocinio</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%236366f1'/><text x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>$</text></svg>">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Spese">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%236366f1'/><text x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>$</text></svg>">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f2f5; color: #1e293b; min-height: 100vh; }
-  
-  .header { background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 20px 24px; color: #fff; display: flex; align-items: center; gap: 12px; }
-  .header-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; }
-  .header h1 { font-size: 22px; font-weight: 700; }
-  .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
-  
-  .container { max-width: 800px; margin: 0 auto; padding: 16px; }
-  
-  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .year-nav { display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
-  .year-nav button { background: none; border: none; font-size: 18px; cursor: pointer; color: #6366f1; padding: 2px 6px; }
-  .year-nav span { font-weight: 700; font-size: 16px; min-width: 50px; text-align: center; }
-  
-  .months { display: flex; gap: 4px; flex-wrap: wrap; }
-  .month-btn { padding: 5px 10px; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; background: #e2e8f0; color: #475569; transition: all 0.2s; }
-  .month-btn.active { background: #6366f1; color: #fff; font-weight: 700; }
-  .month-btn:hover:not(.active) { background: #cbd5e1; }
-  
-  .pay-row { display: flex; align-items: center; gap: 8px; background: #fff; padding: 8px 14px; border-radius: 10px; border: 1px solid #e2e8f0; }
-  .pay-row label { font-size: 13px; color: #64748b; }
-  .pay-row input { width: 80px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-size: 14px; text-align: right; }
-  
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-  .card { border-radius: 12px; padding: 16px; text-align: center; }
-  .card .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
-  .card .value { font-size: 20px; font-weight: 700; }
-  
-  .section { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
-  .section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-  
-  .cat-row { margin-bottom: 8px; }
-  .cat-row .cat-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px; }
-  .cat-row .cat-bar-bg { height: 6px; background: #f1f5f9; border-radius: 3px; }
-  .cat-row .cat-bar { height: 6px; border-radius: 3px; transition: width 0.3s; }
-  
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .form-grid input, .form-grid select { padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; }
-  .form-grid select { background: #fff; }
-  
-  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
-  .btn-primary { flex: 1; padding: 10px; border-radius: 10px; border: none; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; }
-  .btn-cancel { padding: 10px 16px; border-radius: 10px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-size: 14px; }
-  
-  .entry { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; gap: 10px; }
-  .entry:last-child { border-bottom: none; }
-  .entry .dot { width: 8px; height: 8px; border-radius: 4px; flex-shrink: 0; }
-  .entry .info { flex: 1; min-width: 0; }
-  .entry .info .title { font-size: 13px; font-weight: 500; }
-  .entry .info .meta { font-size: 11px; color: #94a3b8; }
-  .entry .amount { font-weight: 600; font-size: 14px; color: #ef4444; white-space: nowrap; }
-  .entry button { background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px; }
-  
-  .empty { color: #94a3b8; font-size: 13px; text-align: center; padding: 24px; }
-  
-  .annual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .annual-card { background: #f8fafc; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
-  .annual-card:hover { border-color: #6366f1; }
-  .annual-card .am { font-size: 11px; color: #64748b; }
-  .annual-card .av { font-size: 14px; font-weight: 600; margin-top: 2px; }
-  
-  .export-btn { display: inline-block; padding: 8px 16px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 12px; }
-  .export-btn:hover { background: #059669; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracker Spese</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23059669'/><text y='74' x='50' text-anchor='middle' font-size='64' font-family='system-ui,sans-serif' font-weight='700' fill='white'>€</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .status-bar { padding: 6px 12px; font-size: 11px; color: #10b981; text-align: center; background: #ecfdf5; }
-</style>
+    :root {
+      --green:        #059669;
+      --green-dark:   #047857;
+      --green-light:  #d1fae5;
+      --green-mid:    #6ee7b7;
+      --red:          #ef4444;
+      --red-light:    #fee2e2;
+      --blue:         #3b82f6;
+      --blue-light:   #dbeafe;
+      --amber:        #f59e0b;
+      --purple:       #8b5cf6;
+      --cyan:         #06b6d4;
+      --orange:       #f97316;
+      --lime:         #84cc16;
+      --bg:           #f1f5f2;
+      --card:         #ffffff;
+      --border:       #e5e7eb;
+      --text:         #111827;
+      --text-sub:     #6b7280;
+      --text-muted:   #9ca3af;
+      --shadow-sm:    0 1px 2px rgba(0,0,0,.06);
+      --shadow:       0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg:    0 8px 24px rgba(0,0,0,.12);
+      --r:            14px;
+      --r-sm:         9px;
+      --r-xs:         6px;
+    }
+
+    html { font-size: 15px; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════════
+       HEADER BANNER
+    ══════════════════════════════════════════ */
+    .app-header {
+      background: linear-gradient(135deg, var(--green) 0%, #10b981 100%);
+      padding: 0 24px;
+      box-shadow: 0 2px 12px rgba(5,150,105,.35);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .app-header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .app-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.3px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-title svg { opacity: .9; flex-shrink: 0; }
+
+    .year-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,.18);
+      border-radius: 99px;
+      padding: 4px 6px;
+    }
+    .year-nav button {
+      width: 28px; height: 28px;
+      border: none;
+      background: none;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+      line-height: 1;
+    }
+    .year-nav button:hover { background: rgba(255,255,255,.25); }
+    .year-nav .year-val {
+      font-size: 17px; font-weight: 700; color: #fff;
+      min-width: 50px; text-align: center;
+    }
+
+    .salary-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.18);
+      border-radius: 99px;
+      padding: 5px 14px 5px 12px;
+      color: rgba(255,255,255,.9);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .salary-pill input {
+      width: 72px;
+      background: none;
+      border: none;
+      border-bottom: 1.5px solid rgba(255,255,255,.5);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+      padding: 1px 2px;
+      font-family: inherit;
+    }
+    .salary-pill input::placeholder { color: rgba(255,255,255,.45); }
+    .salary-pill input:focus { border-bottom-color: #fff; }
+    .salary-pill span { color: rgba(255,255,255,.75); font-size: 12px; }
+
+    /* ══════════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════════ */
+    .main { max-width: 720px; margin: 0 auto; padding: 22px 20px 40px; }
+
+    /* ══════════════════════════════════════════
+       MONTH TABS
+    ══════════════════════════════════════════ */
+    .month-tabs {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 5px;
+      display: flex;
+      gap: 2px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+    }
+    .month-tabs button {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 8px 2px;
+      border-radius: var(--r-xs);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all .15s;
+      position: relative;
+    }
+    .month-tabs button:hover { background: #f3f4f6; color: var(--text); }
+    .month-tabs button.active {
+      background: var(--green);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(5,150,105,.35);
+    }
+    .month-tabs button.has-data::after {
+      content: '';
+      position: absolute;
+      bottom: 3px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .month-tabs button.active::after { background: rgba(255,255,255,.7); }
+
+    /* ══════════════════════════════════════════
+       SUMMARY CARDS
+    ══════════════════════════════════════════ */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .sum-card {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 18px 16px 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sum-card-icon {
+      width: 34px; height: 34px;
+      border-radius: var(--r-xs);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .sum-card-icon.blue  { background: var(--blue-light); }
+    .sum-card-icon.red   { background: var(--red-light); }
+    .sum-card-icon.green { background: var(--green-light); }
+    .sum-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+    .sum-card-value {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.4px;
+      margin-top: 3px;
+    }
+    .sum-card-value.blue  { color: var(--blue); }
+    .sum-card-value.red   { color: var(--red); }
+    .sum-card-value.green { color: var(--green); }
+
+    /* ══════════════════════════════════════════
+       SECTION CARD
+    ══════════════════════════════════════════ */
+    .section {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-badge {
+      background: #f3f4f6;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+
+    /* ══════════════════════════════════════════
+       CATEGORIES
+    ══════════════════════════════════════════ */
+    .cat-row { margin-bottom: 13px; }
+    .cat-row:last-child { margin-bottom: 0; }
+    .cat-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .cat-left { display: flex; align-items: center; gap: 8px; }
+    .cat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .cat-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .cat-right { display: flex; align-items: center; gap: 6px; }
+    .cat-amt { font-size: 13px; font-weight: 700; color: var(--text); }
+    .cat-pct {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-muted);
+      background: #f3f4f6;
+      border-radius: 99px;
+      padding: 1px 7px;
+    }
+    .bar-track { height: 6px; background: #f3f4f6; border-radius: 99px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+    /* ══════════════════════════════════════════
+       FORM — NUOVA SPESA
+    ══════════════════════════════════════════ */
+    .form-body { display: flex; flex-direction: column; gap: 10px; }
+    .form-row {
+      display: grid;
+      gap: 10px;
+    }
+    .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .form-row.cols-4 { grid-template-columns: 160px 1fr 1fr 130px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .field input,
+    .field select {
+      height: 42px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      background: #fafafa;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+      font-family: inherit;
+      width: 100%;
+    }
+    .field select {
+      -webkit-appearance: none;
+      appearance: none;
+      padding-right: 34px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--green);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(5,150,105,.1);
+    }
+    .field input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+    .btn-add {
+      width: 100%;
+      height: 44px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      font-family: inherit;
+      letter-spacing: -.1px;
+      box-shadow: 0 2px 8px rgba(5,150,105,.3);
+    }
+    .btn-add:hover { background: var(--green-dark); box-shadow: 0 4px 12px rgba(5,150,105,.4); }
+    .btn-add:active { transform: scale(.99); }
+
+    /* ══════════════════════════════════════════
+       TRANSACTIONS
+    ══════════════════════════════════════════ */
+    .tx-list { display: flex; flex-direction: column; }
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .tx-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .tx-item:first-child { padding-top: 0; }
+
+    .tx-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    .tx-body { flex: 1; min-width: 0; }
+    .tx-desc {
+      font-size: 14px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tx-sub { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+    .tx-cat-badge {
+      font-size: 11px; font-weight: 600;
+      border-radius: 99px;
+      padding: 1px 8px;
+      color: #fff;
+    }
+    .tx-date { font-size: 11px; color: var(--text-muted); }
+    .tx-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .tx-amount { font-size: 15px; font-weight: 800; color: var(--red); min-width: 78px; text-align: right; }
+
+    .btn-icon {
+      width: 30px; height: 30px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xs);
+      background: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all .15s;
+    }
+    .btn-icon:hover.edit { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+    .btn-icon:hover.del  { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+    .empty-state {
+      text-align: center; padding: 28px 0;
+      color: var(--text-muted); font-size: 13px;
+    }
+    .empty-icon { font-size: 34px; margin-bottom: 8px; }
+
+    /* ══════════════════════════════════════════
+       ANNUAL SUMMARY
+    ══════════════════════════════════════════ */
+    .annual-totals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .ann-card {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 13px 14px;
+      text-align: center;
+    }
+    .ann-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--text-muted); margin-bottom: 5px;
+    }
+    .ann-value { font-size: 17px; font-weight: 800; }
+
+    .monthly-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .mg-cell {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: var(--r-xs);
+      padding: 9px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .mg-cell:hover { background: var(--green-light); border-color: var(--green-mid); }
+    .mg-cell.active { background: var(--green); border-color: var(--green-dark); box-shadow: 0 2px 6px rgba(5,150,105,.3); }
+    .mg-cell.active .mg-month,
+    .mg-cell.active .mg-val { color: #fff; }
+    .mg-month { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 3px; }
+    .mg-val   { font-size: 12px; font-weight: 700; color: var(--text); }
+
+    /* ── Sync indicator ── */
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.35);
+      flex-shrink: 0; transition: background .3s;
+      cursor: pointer; title: 'Sync';
+    }
+    .sync-dot.ok       { background: #86efac; }
+    .sync-dot.syncing  { background: #fde68a; animation: pulse .8s infinite; }
+    .sync-dot.error    { background: #fca5a5; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ══════════════════════════════════════════
+       FOOTER ACTIONS
+    ══════════════════════════════════════════ */
+    .footer-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      padding-bottom: 16px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: var(--r-sm);
+      font-size: 13px; font-weight: 600;
+      padding: 9px 16px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      border: 1.5px solid transparent;
+      white-space: nowrap;
+    }
+    .btn-green  { background: var(--green); color: #fff; box-shadow: 0 1px 6px rgba(5,150,105,.3); }
+    .btn-green:hover { background: var(--green-dark); }
+    .btn-ghost  { background: var(--card); border-color: var(--border); color: var(--text-sub); }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green); background: #f0fdf9; }
+
+    /* ══════════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════════ */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 20px;
+      backdrop-filter: blur(2px);
+    }
+    .modal {
+      background: var(--card);
+      border-radius: var(--r);
+      padding: 26px;
+      width: 100%; max-width: 430px;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-title {
+      font-size: 17px; font-weight: 800; margin-bottom: 20px; color: var(--text);
+    }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel {
+      background: none; border: 1.5px solid var(--border); color: var(--text-sub);
+      border-radius: var(--r-sm); padding: 9px 18px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .btn-cancel:hover { border-color: var(--text-sub); }
+    .btn-save {
+      background: var(--green); color: #fff; border: none;
+      border-radius: var(--r-sm); padding: 9px 22px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: background .15s;
+    }
+    .btn-save:hover { background: var(--green-dark); }
+
+    /* Categories modal */
+    .cat-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; min-height: 32px; }
+    .cat-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: 1.5px solid var(--border); border-radius: 99px;
+      padding: 4px 10px 4px 10px; font-size: 13px; font-weight: 500;
+      background: #f9fafb; color: var(--text);
+    }
+    .cat-chip button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 15px; line-height: 1;
+      padding: 0 1px; display: flex; align-items: center;
+      transition: color .1s;
+    }
+    .cat-chip button:hover { color: var(--red); }
+
+    /* ══════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #1f2937; color: #fff;
+      padding: 11px 18px; border-radius: var(--r-sm);
+      font-size: 13px; font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 200; pointer-events: none;
+      opacity: 0; transform: translateY(8px);
+      transition: all .22s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .hidden { display: none !important; }
+
+    /* ── Logo ── */
+    .app-logo {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       DIVIDER
+    ══════════════════════════════════════════ */
+    .divider { height: 1px; background: #f3f4f6; margin: 2px 0; }
+
+    @media (max-width: 560px) {
+      .summary-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row.cols-4 { grid-template-columns: 1fr 1fr; }
+      .monthly-grid { grid-template-columns: repeat(3, 1fr); }
+      .annual-totals { grid-template-columns: 1fr; }
+      .app-header-inner { gap: 12px; }
+      .salary-pill span { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-icon">$</div>
-  <div>
-    <h1>Spese Tirocinio</h1>
-    <p>Traccia le spese lavorative e calcola il guadagno netto</p>
-  </div>
-</div>
-<div class="status-bar" id="statusBar">✅ Dati salvati automaticamente</div>
-
-<div class="container">
-  <div class="controls">
+<!-- ═══════ HEADER ═══════ -->
+<header class="app-header">
+  <div class="app-header-inner">
+    <div class="app-title">
+      <div class="app-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="6" width="20" height="14" rx="2.5" fill="white" fill-opacity=".22" stroke="white" stroke-width="1.5"/>
+          <path d="M2 10h20" stroke="white" stroke-width="1.5"/>
+          <rect x="14" y="13" width="5" height="3.5" rx="1" fill="white" fill-opacity=".9"/>
+          <circle cx="7.5" cy="14.5" r="2" fill="white" fill-opacity=".85"/>
+          <text x="7.5" y="15.4" text-anchor="middle" font-size="2.4" font-family="system-ui,sans-serif" font-weight="700" fill="#059669">€</text>
+          <path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3h4A1.5 1.5 0 0 1 13 4.5V6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Tracker Spese
+    </div>
     <div class="year-nav">
-      <button onclick="changeYear(-1)">‹</button>
-      <span id="yearLabel"></span>
-      <button onclick="changeYear(1)">›</button>
+      <button onclick="changeYear(-1)" title="Anno precedente">‹</button>
+      <span class="year-val" id="year-display">2026</span>
+      <button onclick="changeYear(1)" title="Anno successivo">›</button>
     </div>
-    <div class="pay-row">
-      <label>Retribuzione:</label>
-      <input type="number" id="payInput" onchange="updatePay(this.value)">
-      <label>€/mese</label>
+    <div class="sync-dot" id="sync-dot" onclick="openSyncModal()" title="Configurazione sync"></div>
+    <div class="salary-pill">
+      <span>Retrib.</span>
+      <input type="number" id="salary-input" min="0" step="10" placeholder="0" autocomplete="off">
+      <span>€/mese</span>
     </div>
   </div>
-  
-  <div class="months" id="monthsBar"></div>
-  <div style="height:12px"></div>
+</header>
 
-  <div class="cards">
-    <div class="card" style="background:#eef2ff"><div class="label">Retribuzione</div><div class="value" id="cardPay" style="color:#6366f1"></div></div>
-    <div class="card" style="background:#fef2f2"><div class="label">Totale spese</div><div class="value" id="cardExp" style="color:#ef4444"></div></div>
-    <div class="card" id="cardNetWrap"><div class="label">Guadagno netto</div><div class="value" id="cardNet"></div></div>
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+  <!-- Month Tabs -->
+  <div class="month-tabs" id="month-tabs"></div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-card-icon blue">💼</div>
+      <div class="sum-card-label">Retribuzione</div>
+      <div class="sum-card-value blue" id="card-salary">—</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-icon red">🧾</div>
+      <div class="sum-card-label">Totale spese</div>
+      <div class="sum-card-value red" id="card-expenses">—</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-card-icon green">✅</div>
+      <div class="sum-card-label">Guadagno netto</div>
+      <div class="sum-card-value green" id="card-net">—</div>
+    </div>
   </div>
 
-  <div class="section" id="catSection" style="display:none">
-    <h3>Spese per categoria</h3>
-    <div id="catBars"></div>
+  <!-- Categories -->
+  <div class="section hidden" id="section-categories">
+    <div class="section-header">
+      <div class="section-title">
+        <span>📊</span> Spese per categoria
+      </div>
+    </div>
+    <div id="categories-list"></div>
   </div>
 
+  <!-- New Expense -->
   <div class="section">
-    <h3 id="formTitle">➕ Nuova spesa</h3>
-    <div class="form-grid">
-      <input type="date" id="fDate">
-      <select id="fCat"></select>
-      <input type="text" id="fDesc" placeholder="Descrizione">
-      <input type="number" id="fAmt" step="0.01" placeholder="Importo €">
+    <div class="section-header" style="margin-bottom:14px">
+      <div class="section-title"><span>＋</span> Nuova spesa</div>
     </div>
-    <div class="btn-row">
-      <button class="btn-primary" id="formBtn" style="background:#6366f1" onclick="submitForm()">Aggiungi spesa</button>
-      <button class="btn-cancel" id="cancelBtn" style="display:none" onclick="cancelEdit()">Annulla</button>
+    <div class="form-body">
+      <div class="form-row cols-2">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="new-date">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="new-category" title="Categoria"></select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="field">
+          <label>Descrizione</label>
+          <input type="text" id="new-desc" placeholder="Es. Pranzo con i colleghi">
+        </div>
+        <div class="field">
+          <label>Importo (€)</label>
+          <input type="number" id="new-amount" placeholder="0,00" min="0.01" step="0.01">
+        </div>
+      </div>
+      <button class="btn-add" onclick="addExpense()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Aggiungi spesa
+      </button>
     </div>
   </div>
 
+  <!-- Transactions -->
   <div class="section">
-    <h3 id="entriesTitle">📋 Movimenti</h3>
-    <div id="entriesList"></div>
+    <div class="section-header">
+      <div class="section-title"><span>📋</span> <span id="tx-title-text">Movimenti</span></div>
+      <span class="section-badge" id="tx-count">0</span>
+    </div>
+    <div class="tx-list" id="tx-list"></div>
   </div>
 
+  <!-- Annual Summary -->
   <div class="section">
-    <h3>📊 Riepilogo annuale <span id="annualYear"></span></h3>
-    <div class="cards" style="margin-bottom:12px">
-      <div class="card" style="background:#eef2ff"><div class="label">Entrate annuali</div><div class="value" id="annIncome" style="color:#6366f1"></div></div>
-      <div class="card" style="background:#fef2f2"><div class="label">Spese annuali</div><div class="value" id="annExp" style="color:#ef4444"></div></div>
-      <div class="card" id="annNetWrap"><div class="label">Netto annuale</div><div class="value" id="annNet"></div></div>
+    <div class="section-header">
+      <div class="section-title"><span>📈</span> Riepilogo annuale <span id="annual-year-label" style="color:var(--text-sub);font-weight:500"></span></div>
     </div>
-    <div class="annual-grid" id="annualGrid"></div>
-    <button class="export-btn" onclick="exportCSV()">📥 Esporta CSV</button>
+    <div class="annual-totals">
+      <div class="ann-card">
+        <div class="ann-label">Entrate annuali</div>
+        <div class="ann-value" id="annual-income" style="color:var(--blue)">—</div>
+      </div>
+      <div class="ann-card">
+        <div class="ann-label">Spese annuali</div>
+        <div class="ann-value" id="annual-expenses" style="color:var(--red)">—</div>
+      </div>
+      <div class="ann-card">
+        <div class="ann-label">Netto annuale</div>
+        <div class="ann-value" id="annual-net" style="color:var(--green)">—</div>
+      </div>
+    </div>
+    <div class="monthly-grid" id="monthly-grid"></div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="footer-row">
+    <button class="btn btn-green" onclick="exportCSV()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Esporta CSV
+    </button>
+    <button class="btn btn-ghost" onclick="openCatModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07M19.07 4.93l-1.41 1.41M4.93 19.07l1.41-1.41"/></svg>
+      Categorie
+    </button>
+    <button class="btn btn-ghost" onclick="openSyncModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Sync
+    </button>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══════ EDIT MODAL ═══════ -->
+<div class="overlay hidden" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">✏️ Modifica spesa</div>
+    <div class="form-body">
+      <div class="form-row cols-2">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="edit-date">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="edit-category" title="Categoria"></select>
+        </div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="field">
+          <label>Descrizione</label>
+          <input type="text" id="edit-desc" placeholder="Descrizione">
+        </div>
+        <div class="field">
+          <label>Importo (€)</label>
+          <input type="number" id="edit-amount" placeholder="0,00" min="0.01" step="0.01">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">Annulla</button>
+      <button class="btn-save" onclick="saveEdit()">Salva modifiche</button>
+    </div>
   </div>
 </div>
+
+<!-- ═══════ CATEGORIES MODAL ═══════ -->
+<div class="overlay hidden" id="cat-modal">
+  <div class="modal">
+    <div class="modal-title">⚙️ Gestisci categorie</div>
+    <div class="cat-tags" id="cat-tags"></div>
+    <div class="form-row cols-2" style="gap:8px">
+      <div class="field">
+        <label>Nuova categoria</label>
+        <input type="text" id="new-cat-input" placeholder="Nome categoria..." onkeydown="if(event.key==='Enter')addCategory()">
+      </div>
+      <div class="field">
+        <label style="visibility:hidden">_</label>
+        <button class="btn-save" style="height:42px;border-radius:var(--r-sm)" onclick="addCategory()">Aggiungi</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" onclick="closeCatModal()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SYNC MODAL ═══════ -->
+<div class="overlay hidden" id="sync-modal">
+  <div class="modal">
+    <div class="modal-title">☁️ Sincronizzazione cloud</div>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px;line-height:1.6">
+      Inserisci le credenziali di <strong>JSONBin.io</strong> (gratuito) per sincronizzare i dati su qualsiasi browser.<br>
+      <a href="https://jsonbin.io" target="_blank" style="color:var(--green)">→ Crea account gratuito su jsonbin.io</a>
+    </p>
+    <div class="form-body">
+      <div class="field">
+        <label>Master Key (X-Master-Key)</label>
+        <input type="password" id="sync-key-input" placeholder="$2a$10$...">
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label>Bin ID</label>
+        <input type="text" id="sync-bin-input" placeholder="6614abc123...">
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:12px;line-height:1.5">
+      Come ottenerle: accedi a jsonbin.io → <em>API Keys</em> (copia la Master Key) → <em>Bins → Create a Bin</em> (copia l'ID dal URL).
+    </p>
+    <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <button class="btn-cancel" onclick="clearSyncConfig()" style="color:var(--red);border-color:var(--red)">Rimuovi sync</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel" onclick="closeSyncModal()">Annulla</button>
+        <button class="btn-save" onclick="saveSyncConfig()">Salva e sincronizza</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
-const CATS = ["Parcheggio","Carburante/Trasporti","Pranzo/Spesa","Materiale lavoro","Abbigliamento lavoro","Altro"];
-const MONTHS = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-const CAT_COLORS = {"Parcheggio":"#6366f1","Carburante/Trasporti":"#f59e0b","Pranzo/Spesa":"#10b981","Materiale lavoro":"#ef4444","Abbigliamento lavoro":"#8b5cf6","Altro":"#64748b"};
-const fmt = n => n.toFixed(2).replace(".",",") + " €";
+// ─── Constants ───────────────────────────────────────────────────────────────
+const KEY     = 'trackerSpese_v3';
+const MONTHS  = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ot','Nov','Dic'];
+const COLORS  = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
 
-let state = loadState();
+// ─── State ───────────────────────────────────────────────────────────────────
+let S = {
+  year:       new Date().getFullYear(),
+  month:      new Date().getMonth(),
+  expenses:   [],
+  salaries:   {},
+  categories: ['Parcheggio','Pranzo/Spesa','Trasporti','Alloggio','Materiali','Altro']
+};
 let editId = null;
 
-function defaultState() {
-  return { entries: [], monthlyPay: 800, selectedMonth: new Date().getMonth(), selectedYear: new Date().getFullYear() };
+// ─── Storage ─────────────────────────────────────────────────────────────────
+const SYNC_KEY = 'trackerSpese_sync';
+
+function getSyncCfg() {
+  try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch { return {}; }
 }
 
-function loadState() {
+function applyData(d) {
+  S = { ...S, ...d };
+  if (!S.categories?.length) S.categories = ['Parcheggio','Pranzo/Spesa','Trasporti','Alloggio','Materiali','Altro'];
+  S.expenses = S.expenses.map(e => {
+    if (e.year == null) { const dt = new Date(e.date); e.year = dt.getFullYear(); e.month = dt.getMonth(); }
+    return e;
+  });
+}
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(S));
+  queueSync();
+}
+
+function load() {
   try {
-    const s = localStorage.getItem("tirocinio_tracker");
-    if (s) { const p = JSON.parse(s); return { ...defaultState(), ...p }; }
-  } catch(e) {}
-  return defaultState();
+    const raw = localStorage.getItem(KEY);
+    if (raw) applyData(JSON.parse(raw));
+  } catch(e) { console.error(e); }
 }
 
-function saveState() {
-  localStorage.setItem("tirocinio_tracker", JSON.stringify(state));
-  document.getElementById("statusBar").textContent = "✅ Salvato — " + new Date().toLocaleTimeString("it-IT");
+// ─── Cloud Sync (JSONBin.io) ──────────────────────────────────────────────────
+let syncTimer = null;
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (state ? ' ' + state : '');
+  const labels = { ok:'Sync attivo ✓', syncing:'Sincronizzazione...', error:'Errore sync — clicca per controllare', '':'Sync non configurato' };
+  dot.title = labels[state || ''] || '';
 }
 
-function changeYear(d) { state.selectedYear += d; saveState(); render(); }
-function updatePay(v) { state.monthlyPay = Number(v); saveState(); render(); }
-
-function getFiltered() {
-  return state.entries.filter(e => {
-    const d = new Date(e.date);
-    return d.getMonth() === state.selectedMonth && d.getFullYear() === state.selectedYear;
-  }).sort((a,b) => b.date.localeCompare(a.date));
+function queueSync() {
+  const cfg = getSyncCfg();
+  if (!cfg.key || !cfg.bin) return;
+  clearTimeout(syncTimer);
+  setSyncDot('syncing');
+  syncTimer = setTimeout(pushToCloud, 1500);
 }
 
-function getYearEntries() {
-  return state.entries.filter(e => new Date(e.date).getFullYear() === state.selectedYear);
+async function pushToCloud() {
+  const cfg = getSyncCfg();
+  if (!cfg.key || !cfg.bin) return;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.bin}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.key },
+      body: JSON.stringify(S)
+    });
+    setSyncDot(r.ok ? 'ok' : 'error');
+  } catch { setSyncDot('error'); }
 }
 
-function submitForm() {
-  const date = document.getElementById("fDate").value;
-  const cat = document.getElementById("fCat").value;
-  const desc = document.getElementById("fDesc").value;
-  const amt = parseFloat(document.getElementById("fAmt").value);
-  if (!date || !desc || isNaN(amt) || amt <= 0) return alert("Compila tutti i campi");
-  
-  if (editId !== null) {
-    const i = state.entries.findIndex(e => e.id === editId);
-    if (i >= 0) state.entries[i] = { ...state.entries[i], date, category: cat, description: desc, amount: amt };
-    editId = null;
-  } else {
-    state.entries.push({ id: Date.now(), date, category: cat, description: desc, amount: amt });
-  }
-  saveState();
-  document.getElementById("fDesc").value = "";
-  document.getElementById("fAmt").value = "";
-  render();
+async function pullFromCloud() {
+  const cfg = getSyncCfg();
+  if (!cfg.key || !cfg.bin) return false;
+  setSyncDot('syncing');
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.bin}/latest`, {
+      headers: { 'X-Master-Key': cfg.key, 'X-Bin-Meta': 'false' }
+    });
+    if (!r.ok) { setSyncDot('error'); return false; }
+    const d = await r.json();
+    applyData(d);
+    localStorage.setItem(KEY, JSON.stringify(S));
+    setSyncDot('ok');
+    return true;
+  } catch { setSyncDot('error'); return false; }
 }
 
-function startEdit(id) {
-  const e = state.entries.find(x => x.id === id);
-  if (!e) return;
-  editId = id;
-  document.getElementById("fDate").value = e.date;
-  document.getElementById("fCat").value = e.category;
-  document.getElementById("fDesc").value = e.description;
-  document.getElementById("fAmt").value = e.amount;
-  document.getElementById("formTitle").textContent = "✏️ Modifica spesa";
-  document.getElementById("formBtn").textContent = "Salva modifiche";
-  document.getElementById("formBtn").style.background = "#f59e0b";
-  document.getElementById("cancelBtn").style.display = "";
+// ─── Sync Modal ───────────────────────────────────────────────────────────────
+function openSyncModal() {
+  const cfg = getSyncCfg();
+  document.getElementById('sync-key-input').value = cfg.key || '';
+  document.getElementById('sync-bin-input').value = cfg.bin || '';
+  document.getElementById('sync-modal').classList.remove('hidden');
+}
+function closeSyncModal() { document.getElementById('sync-modal').classList.add('hidden'); }
+
+async function saveSyncConfig() {
+  const key = document.getElementById('sync-key-input').value.trim();
+  const bin = document.getElementById('sync-bin-input').value.trim();
+  if (!key || !bin) { toast('⚠ Inserisci entrambe le credenziali'); return; }
+  localStorage.setItem(SYNC_KEY, JSON.stringify({ key, bin }));
+  closeSyncModal();
+  toast('⏳ Connessione al cloud...');
+  const ok = await pullFromCloud();
+  if (ok) { render(); toast('☁ Sync attivo — dati aggiornati dal cloud'); }
+  else { toast('❌ Credenziali non valide o errore di rete'); }
 }
 
-function cancelEdit() {
-  editId = null;
-  document.getElementById("fDesc").value = "";
-  document.getElementById("fAmt").value = "";
-  document.getElementById("formTitle").textContent = "➕ Nuova spesa";
-  document.getElementById("formBtn").textContent = "Aggiungi spesa";
-  document.getElementById("formBtn").style.background = "#6366f1";
-  document.getElementById("cancelBtn").style.display = "none";
+function clearSyncConfig() {
+  if (!confirm('Disattivare la sincronizzazione cloud?')) return;
+  localStorage.removeItem(SYNC_KEY);
+  setSyncDot('');
+  closeSyncModal();
+  toast('Sync disattivato');
 }
 
-function removeEntry(id) {
-  if (!confirm("Eliminare questa spesa?")) return;
-  state.entries = state.entries.filter(e => e.id !== id);
-  if (editId === id) cancelEdit();
-  saveState(); render();
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const fmt  = n => n.toLocaleString('it-IT', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const cc   = c => COLORS[S.categories.indexOf(c) % COLORS.length] || '#6b7280';
+const mexp = (y,m) => S.expenses.filter(e => e.year===y && e.month===m);
+const msum = arr => arr.reduce((s,e) => s+e.amount, 0);
+const salKey = (y, m) => `${y}-${m}`;
+const sal    = (y=S.year, m=S.month) => parseFloat(S.salaries[salKey(y,m)]) || 0;
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-function selectMonth(m) { state.selectedMonth = m; saveState(); render(); }
-
-function exportCSV() {
-  const ye = getYearEntries().sort((a,b) => a.date.localeCompare(b.date));
-  let csv = "Data,Categoria,Descrizione,Importo\n";
-  ye.forEach(e => { csv += `${e.date},"${e.category}","${e.description}",${e.amount.toFixed(2)}\n`; });
-  csv += `\nRetribuzione mensile:,${state.monthlyPay}\n`;
-  csv += `Totale spese annuali:,${ye.reduce((s,e)=>s+e.amount,0).toFixed(2)}\n`;
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `spese_tirocinio_${state.selectedYear}.csv`;
-  a.click();
-}
-
+// ─── Render ───────────────────────────────────────────────────────────────────
 function render() {
-  document.getElementById("yearLabel").textContent = state.selectedYear;
-  document.getElementById("annualYear").textContent = state.selectedYear;
-  document.getElementById("payInput").value = state.monthlyPay;
-
-  let mhtml = "";
-  MONTHS.forEach((m, i) => {
-    mhtml += `<button class="month-btn ${i === state.selectedMonth ? 'active' : ''}" onclick="selectMonth(${i})">${m}</button>`;
-  });
-  document.getElementById("monthsBar").innerHTML = mhtml;
-
-  if (!document.getElementById("fDate").value) {
-    document.getElementById("fDate").value = new Date().toISOString().slice(0,10);
-  }
-
-  const sel = document.getElementById("fCat");
-  if (sel.options.length === 0) CATS.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o); });
-
-  const filtered = getFiltered();
-  const totalExp = filtered.reduce((s,e) => s + e.amount, 0);
-  const net = state.monthlyPay - totalExp;
-
-  document.getElementById("cardPay").textContent = fmt(state.monthlyPay);
-  document.getElementById("cardExp").textContent = fmt(totalExp);
-  document.getElementById("cardNet").textContent = fmt(net);
-  document.getElementById("cardNet").style.color = net >= 0 ? "#10b981" : "#ef4444";
-  document.getElementById("cardNetWrap").style.background = net >= 0 ? "#ecfdf5" : "#fef2f2";
-
-  const catMap = {};
-  CATS.forEach(c => catMap[c] = 0);
-  filtered.forEach(e => catMap[e.category] = (catMap[e.category]||0) + e.amount);
-  const catArr = Object.entries(catMap).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]);
-  const maxCat = catArr.length ? catArr[0][1] : 1;
-
-  if (catArr.length) {
-    document.getElementById("catSection").style.display = "";
-    let ch = "";
-    catArr.forEach(([cat, val]) => {
-      ch += `<div class="cat-row"><div class="cat-header"><span>${cat}</span><span style="font-weight:600">${fmt(val)} <span style="color:#94a3b8;font-weight:400">(${((val/totalExp)*100).toFixed(0)}%)</span></span></div><div class="cat-bar-bg"><div class="cat-bar" style="background:${CAT_COLORS[cat]||'#64748b'};width:${(val/maxCat)*100}%"></div></div></div>`;
-    });
-    document.getElementById("catBars").innerHTML = ch;
-  } else {
-    document.getElementById("catSection").style.display = "none";
-  }
-
-  document.getElementById("entriesTitle").textContent = `📋 Movimenti di ${MONTHS[state.selectedMonth]} ${state.selectedYear} (${filtered.length})`;
-  if (filtered.length === 0) {
-    document.getElementById("entriesList").innerHTML = '<div class="empty">Nessuna spesa registrata per questo mese</div>';
-  } else {
-    let eh = "";
-    filtered.forEach(e => {
-      eh += `<div class="entry"><div class="dot" style="background:${CAT_COLORS[e.category]||'#64748b'}"></div><div class="info"><div class="title">${e.description}</div><div class="meta">${e.category} · ${new Date(e.date).toLocaleDateString("it-IT")}</div></div><div class="amount">-${fmt(e.amount)}</div><button onclick="startEdit(${e.id})">✏️</button><button onclick="removeEntry(${e.id})">🗑️</button></div>`;
-    });
-    document.getElementById("entriesList").innerHTML = eh;
-  }
-
-  const yearEntries = getYearEntries();
-  const annTotalExp = yearEntries.reduce((s,e) => s + e.amount, 0);
-  const annIncome = state.monthlyPay * 12;
-  const annNet = annIncome - annTotalExp;
-  document.getElementById("annIncome").textContent = fmt(annIncome);
-  document.getElementById("annExp").textContent = fmt(annTotalExp);
-  document.getElementById("annNet").textContent = fmt(annNet);
-  document.getElementById("annNet").style.color = annNet >= 0 ? "#10b981" : "#ef4444";
-  document.getElementById("annNetWrap").style.background = annNet >= 0 ? "#ecfdf5" : "#fef2f2";
-
-  let ag = "";
-  MONTHS.forEach((m, i) => {
-    const me = yearEntries.filter(e => new Date(e.date).getMonth() === i);
-    const mt = me.reduce((s,e) => s + e.amount, 0);
-    const mn = state.monthlyPay - mt;
-    ag += `<div class="annual-card" onclick="selectMonth(${i})"><div class="am">${m}</div><div class="av" style="color:${mn >= 0 ? '#10b981' : '#ef4444'}">${mt > 0 ? fmt(mn) : '—'}</div></div>`;
-  });
-  document.getElementById("annualGrid").innerHTML = ag;
+  renderHeader();
+  renderTabs();
+  renderCards();
+  renderCategories();
+  renderTx();
+  renderAnnual();
+  populateSelects();
 }
 
+function renderHeader() {
+  document.getElementById('year-display').textContent = S.year;
+  document.getElementById('salary-input').value = S.salaries[salKey(S.year, S.month)] || '';
+}
+
+function renderTabs() {
+  document.getElementById('month-tabs').innerHTML = MONTHS.map((m,i) => {
+    const active = i === S.month ? 'active' : '';
+    const hasd   = mexp(S.year, i).length > 0 ? 'has-data' : '';
+    return `<button class="${active} ${hasd}" onclick="selMonth(${i})">${m}</button>`;
+  }).join('');
+}
+
+function renderCards() {
+  const s = sal(), exps = mexp(S.year, S.month), tot = msum(exps), net = s - tot;
+  document.getElementById('card-salary').textContent   = s > 0   ? fmt(s)   : '—';
+  document.getElementById('card-expenses').textContent = tot > 0 ? fmt(tot) : '—';
+  const netEl = document.getElementById('card-net');
+  netEl.textContent  = (s > 0 || tot > 0) ? fmt(net) : '—';
+  netEl.style.color  = net >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function renderCategories() {
+  const exps = mexp(S.year, S.month), tot = msum(exps);
+  const sec  = document.getElementById('section-categories');
+  if (tot === 0) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  const byCat = {};
+  exps.forEach(e => byCat[e.category] = (byCat[e.category]||0) + e.amount);
+  const sorted = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+
+  document.getElementById('categories-list').innerHTML = sorted.map(([cat, amt]) => {
+    const pct = Math.round(amt/tot*100);
+    const col = cc(cat);
+    return `
+      <div class="cat-row">
+        <div class="cat-info">
+          <div class="cat-left">
+            <div class="cat-dot" style="background:${col}"></div>
+            <span class="cat-name">${esc(cat)}</span>
+          </div>
+          <div class="cat-right">
+            <span class="cat-amt">${fmt(amt)}</span>
+            <span class="cat-pct">${pct}%</span>
+          </div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%;background:${col}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderTx() {
+  const exps = mexp(S.year, S.month);
+  const mn   = MONTHS[S.month];
+  document.getElementById('tx-title-text').textContent = `Movimenti di ${mn} ${S.year}`;
+  document.getElementById('tx-count').textContent = exps.length;
+
+  if (exps.length === 0) {
+    document.getElementById('tx-list').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🗂</div>
+        Nessuna spesa registrata per ${mn} ${S.year}
+      </div>`;
+    return;
+  }
+
+  const sorted = [...exps].sort((a,b) => new Date(b.date)-new Date(a.date));
+  document.getElementById('tx-list').innerHTML = sorted.map(e => {
+    const col  = cc(e.category);
+    const dt   = new Date(e.date+'T00:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    // derive an emoji per category name
+    const icons = {'Parcheggio':'🅿️','Pranzo/Spesa':'🍽️','Trasporti':'🚗','Alloggio':'🏠','Materiali':'📦','Altro':'📌'};
+    const icon = icons[e.category] || '💳';
+    return `
+      <div class="tx-item">
+        <div class="tx-icon" style="background:${col}22">${icon}</div>
+        <div class="tx-body">
+          <div class="tx-desc">${esc(e.description||'(nessuna descrizione)')}</div>
+          <div class="tx-sub">
+            <span class="tx-cat-badge" style="background:${col}">${esc(e.category)}</span>
+            <span class="tx-date">${dt}</span>
+          </div>
+        </div>
+        <div class="tx-right">
+          <span class="tx-amount">-${fmt(e.amount)}</span>
+          <button class="btn-icon edit" onclick="openEdit('${e.id}')" title="Modifica">✏</button>
+          <button class="btn-icon del"  onclick="delExp('${e.id}')" title="Elimina">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAnnual() {
+  const y = S.year;
+  document.getElementById('annual-year-label').textContent = y;
+
+  let totInc = 0, totExp = 0;
+  const cells = MONTHS.map((m,i) => {
+    const exps = mexp(y,i), tot = msum(exps), s = sal(y,i);
+    totInc += s; totExp += tot;
+    const net = s > 0 ? s-tot : (tot > 0 ? -tot : null);
+    const active = i === S.month ? 'active' : '';
+    const disp   = net !== null ? fmt(Math.abs(net)) : (tot > 0 ? fmt(tot) : '—');
+    const col    = !active && net !== null && net < 0 ? 'color:var(--red)' : '';
+    return `<div class="mg-cell ${active}" onclick="selMonth(${i})">
+      <div class="mg-month">${m}</div>
+      <div class="mg-val" style="${active?'':col}">${disp}</div>
+    </div>`;
+  });
+  document.getElementById('monthly-grid').innerHTML = cells.join('');
+
+  const annNet = totInc - totExp;
+  document.getElementById('annual-income').textContent   = totInc > 0 ? fmt(totInc) : '—';
+  document.getElementById('annual-expenses').textContent = totExp > 0 ? fmt(totExp) : '—';
+  const el = document.getElementById('annual-net');
+  el.textContent = (totInc > 0 || totExp > 0) ? fmt(annNet) : '—';
+  el.style.color = annNet >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function populateSelects() {
+  ['new-category','edit-category'].forEach(id => {
+    const el = document.getElementById(id), cur = el.value;
+    el.innerHTML = S.categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    if (cur && S.categories.includes(cur)) el.value = cur;
+  });
+}
+
+// ─── Actions ─────────────────────────────────────────────────────────────────
+function changeYear(d) { S.year += d; save(); render(); }
+function selMonth(i)   { S.month = i; render(); }
+
+document.getElementById('salary-input').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (!isNaN(v) && v >= 0) S.salaries[salKey(S.year, S.month)] = v;
+  else if (this.value === '') delete S.salaries[salKey(S.year, S.month)];
+  save(); renderCards(); renderAnnual();
+});
+
+function addExpense() {
+  const date = document.getElementById('new-date').value;
+  const cat  = document.getElementById('new-category').value;
+  const desc = document.getElementById('new-desc').value.trim();
+  const amt  = parseFloat(document.getElementById('new-amount').value);
+  if (!date)        { toast('⚠ Inserisci una data'); return; }
+  if (!cat)         { toast('⚠ Scegli una categoria'); return; }
+  if (!amt || amt<=0){ toast('⚠ Importo non valido'); return; }
+  const dt = new Date(date+'T00:00:00');
+  S.expenses.push({ id:uid(), date, year:dt.getFullYear(), month:dt.getMonth(), category:cat, description:desc, amount:amt });
+  S.year = dt.getFullYear(); S.month = dt.getMonth();
+  document.getElementById('new-amount').value = '';
+  document.getElementById('new-desc').value   = '';
+  save(); render(); toast('✅ Spesa aggiunta');
+}
+
+function delExp(id) {
+  if (!confirm('Eliminare questa spesa?')) return;
+  S.expenses = S.expenses.filter(e => e.id !== id);
+  save(); render(); toast('🗑 Spesa eliminata');
+}
+
+// ─── Edit Modal ───────────────────────────────────────────────────────────────
+function openEdit(id) {
+  const e = S.expenses.find(x => x.id===id); if (!e) return;
+  editId = id; populateSelects();
+  document.getElementById('edit-date').value     = e.date;
+  document.getElementById('edit-category').value = e.category;
+  document.getElementById('edit-desc').value     = e.description||'';
+  document.getElementById('edit-amount').value   = e.amount;
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEditModal() {
+  editId = null;
+  document.getElementById('edit-modal').classList.add('hidden');
+}
+function saveEdit() {
+  if (!editId) return;
+  const date = document.getElementById('edit-date').value;
+  const cat  = document.getElementById('edit-category').value;
+  const desc = document.getElementById('edit-desc').value.trim();
+  const amt  = parseFloat(document.getElementById('edit-amount').value);
+  if (!date||!cat||!amt||amt<=0) { toast('⚠ Compila tutti i campi'); return; }
+  const dt = new Date(date+'T00:00:00');
+  const idx = S.expenses.findIndex(e => e.id===editId);
+  S.expenses[idx] = { ...S.expenses[idx], date, year:dt.getFullYear(), month:dt.getMonth(), category:cat, description:desc, amount:amt };
+  closeEditModal(); save(); render(); toast('✅ Spesa aggiornata');
+}
+
+// ─── Categories Modal ─────────────────────────────────────────────────────────
+function openCatModal()  { renderCatTags(); document.getElementById('cat-modal').classList.remove('hidden'); }
+function closeCatModal() {
+  document.getElementById('cat-modal').classList.add('hidden');
+  populateSelects(); renderCategories();
+}
+function renderCatTags() {
+  document.getElementById('cat-tags').innerHTML = S.categories.map((c,i) => `
+    <span class="cat-chip">
+      <span style="width:8px;height:8px;border-radius:50%;background:${COLORS[i%COLORS.length]};display:inline-block;flex-shrink:0"></span>
+      ${esc(c)}
+      <button onclick="removeCat(${i})" title="Rimuovi">×</button>
+    </span>`).join('');
+}
+function addCategory() {
+  const el = document.getElementById('new-cat-input'), v = el.value.trim();
+  if (!v) return;
+  if (S.categories.includes(v)) { toast('⚠ Categoria già esistente'); return; }
+  S.categories.push(v); el.value = ''; save(); renderCatTags(); populateSelects();
+}
+function removeCat(i) {
+  const cat = S.categories[i];
+  if (S.expenses.some(e=>e.category===cat) && !confirm(`La categoria "${cat}" è in uso. Rimuoverla comunque?`)) return;
+  S.categories.splice(i,1); save(); renderCatTags(); populateSelects();
+}
+
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (!S.expenses.length) { toast('⚠ Nessuna spesa da esportare'); return; }
+  const sorted = [...S.expenses].sort((a,b) => new Date(a.date)-new Date(b.date));
+  const rows = sorted.map(e => {
+    const d = (e.description||'').replace(/"/g,'""');
+    return `"${e.date}","${e.year}","${MONTHS[e.month]}","${e.category}","${d}","${e.amount.toFixed(2)}"`;
+  });
+  const csv  = ['Data,Anno,Mese,Categoria,Descrizione,Importo (€)', ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`spese_${new Date().toISOString().slice(0,10)}.csv`});
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('📥 CSV esportato');
+}
+
+
+// ─── Modal overlay close ──────────────────────────────────────────────────────
+document.getElementById('edit-modal').addEventListener('click',  e => { if (e.target===e.currentTarget) closeEditModal(); });
+document.getElementById('cat-modal').addEventListener('click',   e => { if (e.target===e.currentTarget) closeCatModal(); });
+document.getElementById('sync-modal').addEventListener('click',  e => { if (e.target===e.currentTarget) closeSyncModal(); });
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('new-date').value = new Date().toISOString().slice(0,10);
+load();
 render();
+// Carica dal cloud all'avvio (se configurato), poi aggiorna la UI
+const _cfg = getSyncCfg();
+if (_cfg.key && _cfg.bin) {
+  setSyncDot('syncing');
+  pullFromCloud().then(ok => { if (ok) render(); });
+}
 </script>
 </body>
 </html>
