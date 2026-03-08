@@ -569,6 +569,36 @@
     }
 
     /* ══════════════════════════════════════════
+       CHART LEGEND
+    ══════════════════════════════════════════ */
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .legend-swatch {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .legend-name { font-weight: 500; color: var(--text); }
+    .legend-amt  { font-weight: 700; color: var(--text); }
+    .legend-pct  {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      background: #f3f4f6; border-radius: 99px; padding: 1px 7px;
+    }
+
+    /* ══════════════════════════════════════════
        DIVIDER
     ══════════════════════════════════════════ */
     .divider { height: 1px; background: #f3f4f6; margin: 2px 0; }
@@ -712,6 +742,18 @@
       </div>
     </div>
     <div class="monthly-grid" id="monthly-grid"></div>
+  </div>
+
+  <!-- Monthly Chart -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <span>📊</span> Andamento spese mensili
+        <span id="chart-year" style="color:var(--text-sub);font-weight:500;margin-left:4px"></span>
+      </div>
+    </div>
+    <div id="chart-wrap" style="width:100%;overflow:hidden"></div>
+    <div class="chart-legend" id="chart-legend"></div>
   </div>
 
   <!-- Footer Actions -->
@@ -966,6 +1008,7 @@ function render() {
   renderCategories();
   renderTx();
   renderAnnual();
+  renderChart();
   populateSelects();
 }
 
@@ -1062,6 +1105,88 @@ function renderTx() {
         </div>
       </div>`;
   }).join('');
+}
+
+// ─── Chart ────────────────────────────────────────────────────────────────────
+function renderChart() {
+  const year = S.year;
+  document.getElementById('chart-year').textContent = year;
+
+  const VW = 660, VH = 210;
+  const mL = 50, mR = 10, mT = 22, mB = 34;
+  const cW = VW - mL - mR;
+  const cH = VH - mT - mB;
+
+  // Build monthly data
+  const data = MONTHS.map((lbl, i) => {
+    const exps = mexp(year, i), total = msum(exps);
+    const byCat = {};
+    exps.forEach(e => byCat[e.category] = (byCat[e.category]||0) + e.amount);
+    const top = Object.entries(byCat).sort((a,b) => b[1]-a[1])[0];
+    return { lbl, total, topCat: top?.[0]||null, color: top ? cc(top[0]) : '#e5e7eb' };
+  });
+
+  const maxVal = Math.max(...data.map(d => d.total), 1);
+  // Round up to a "nice" ceiling
+  const mag = Math.pow(10, Math.floor(Math.log10(maxVal)));
+  const step = mag / 2;
+  const yMax = Math.ceil(maxVal * 1.2 / step) * step;
+
+  const slotW = cW / 12, pad = 6, bw = slotW - pad * 2;
+  let g = '';
+
+  // Y gridlines + labels (0 to yMax in 4 steps)
+  for (let i = 0; i <= 4; i++) {
+    const val = yMax / 4 * i;
+    const y   = mT + cH - (val / yMax) * cH;
+    const lbl = val >= 1000 ? (val/1000).toFixed(1).replace(/\.0$/,'')+'k' : val.toFixed(0);
+    g += `<line x1="${mL}" y1="${y.toFixed(1)}" x2="${mL+cW}" y2="${y.toFixed(1)}" stroke="${i===0?'#d1d5db':'#f3f4f6'}" stroke-width="${i===0?'1.5':'1'}"/>`;
+    g += `<text x="${mL-7}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#9ca3af" font-family="system-ui,sans-serif">${lbl}</text>`;
+  }
+
+  // Bars
+  data.forEach((d, i) => {
+    const x = mL + i * slotW + pad;
+    const bh = d.total > 0 ? Math.max((d.total/yMax)*cH, 3) : 0;
+    const y  = mT + cH - bh;
+
+    if (bh > 0) {
+      g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="${d.color}" fill-opacity=".85"/>`;
+      if (bh > 22) {
+        const vl = d.total >= 1000 ? (d.total/1000).toFixed(1).replace(/\.0$/,'')+'k€' : d.total.toFixed(0)+'€';
+        g += `<text x="${(x+bw/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="${d.color}" font-weight="700" font-family="system-ui,sans-serif">${vl}</text>`;
+      }
+    } else {
+      g += `<rect x="${x.toFixed(1)}" y="${(mT+cH-3).toFixed(1)}" width="${bw.toFixed(1)}" height="3" rx="1.5" fill="#e5e7eb"/>`;
+    }
+
+    // Month label
+    g += `<text x="${(x+bw/2).toFixed(1)}" y="${(mT+cH+17).toFixed(1)}" text-anchor="middle" font-size="11" fill="#6b7280" font-family="system-ui,sans-serif" font-weight="500">${d.lbl}</text>`;
+  });
+
+  document.getElementById('chart-wrap').innerHTML =
+    `<svg width="100%" viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" style="display:block">${g}</svg>`;
+
+  // Legend: categorie attive nell'anno, ordinate per totale
+  const yearTotals = {};
+  MONTHS.forEach((_,i) => mexp(year,i).forEach(e => yearTotals[e.category] = (yearTotals[e.category]||0) + e.amount));
+  const yearTotal = Object.values(yearTotals).reduce((s,v) => s+v, 0);
+  const sorted    = Object.entries(yearTotals).sort((a,b) => b[1]-a[1]);
+
+  const legendEl = document.getElementById('chart-legend');
+  if (!sorted.length) {
+    legendEl.innerHTML = `<span style="font-size:13px;color:var(--text-muted)">Nessuna spesa registrata nel ${year}</span>`;
+  } else {
+    legendEl.innerHTML = sorted.map(([cat, tot]) => {
+      const pct = yearTotal > 0 ? Math.round(tot/yearTotal*100) : 0;
+      return `<div class="legend-item">
+        <div class="legend-swatch" style="background:${cc(cat)}"></div>
+        <span class="legend-name">${esc(cat)}</span>
+        <span class="legend-amt">${fmt(tot)}</span>
+        <span class="legend-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+  }
 }
 
 function renderAnnual() {
